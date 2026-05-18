@@ -18,8 +18,11 @@ package com.example.lunchtray
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,6 +36,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -67,18 +71,16 @@ fun LunchTrayAppBar(
     navigate:()-> Unit,
 modifier: Modifier = Modifier
 ){
-    TopAppBar(
+    CenterAlignedTopAppBar(
         title = { Text(stringResource(currentScreen.title)) },
-        colors = TopAppBarDefaults.mediumTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        ),
         modifier = modifier,
         navigationIcon = {
-            if (canNavigateBack){
-                IconButton(
-                    onClick = navigate
-                ) {
-                    Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = stringResource(R.string.back_button))
+            if (canNavigateBack) {
+                IconButton(onClick = navigate) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.back_button)
+                    )
                 }
             }
         }
@@ -94,18 +96,17 @@ private fun cancelOrderAndNavigateToStart(
     navController.popBackStack(LunchTrayScreen.START.name, inclusive = false)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LunchTrayApp(
     navController: NavHostController = rememberNavController(),
-    viewModel: OrderViewModel = OrderViewModel()
+
 ) {
     // TODO: Create Controller and initialization
 
 //    // Create ViewModel
-//    val viewModel: OrderViewModel = viewModel()
+    val viewModel: OrderViewModel = viewModel()
     val backStackEntry by navController.currentBackStackEntryAsState()
-    var currentScreen = LunchTrayScreen.valueOf(backStackEntry?.destination?.route ?: LunchTrayScreen.START.name)
+    val currentScreen = LunchTrayScreen.valueOf(backStackEntry?.destination?.route ?: LunchTrayScreen.START.name)
 
     Scaffold(
         topBar = {
@@ -187,7 +188,7 @@ fun LunchTrayApp(
 
             composable(route = LunchTrayScreen.CHECK_OUT.name) {
                 CheckoutScreen(
-
+                    modifier = Modifier.verticalScroll(rememberScrollState()).padding(start = dimensionResource(R.dimen.padding_medium), end = dimensionResource(R.dimen.padding_medium)),
                     orderUiState = uiState,
                     onSubmitButtonClicked = {
                        cancelOrderAndNavigateToStart(viewModel,navController)
